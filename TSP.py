@@ -1,11 +1,26 @@
 from pulp import LpMinimize, LpProblem, LpStatus, lpSum, LpVariable, LpBinary
+from scipy.spatial.distance import cdist
+import networkx as nx
+import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import logging
 global logger
 global file_format
 
-MatrizD = pd.read_excel('MatrizD.xlsx', index_col=0)
+
+Coordenadas = pd.read_csv('Coordenadas.csv', index_col=0)
+Coordenadas['XY'] = list(zip(Coordenadas['X'], Coordenadas['Y']))
+Coordenadas.drop(['X', 'Y'], axis=1, inplace=True)
+Nodos = Coordenadas.index.tolist()
+Coordenadas = Coordenadas.to_dict('index')
+Coord_array = []
+for key in Coordenadas:
+    Coord_array.append(Coordenadas[key]['XY'])
+    Coordenadas[key] = Coordenadas[key]['XY']
+
+MatrizD = cdist(Coord_array, Coord_array, 'euclidean')
+MatrizD = pd.DataFrame(data=MatrizD, index=Nodos, columns=Nodos)
 
 
 def mantener_log():
@@ -34,17 +49,6 @@ def traducir_solucion(soluc):
 
 
 def dibujar_red(sol):
-    import networkx as nx
-    import pandas as pd
-    import matplotlib.pyplot as plt
-
-    Coordenadas = pd.read_excel('Coordenadas.xlsx', index_col=0)
-    Coordenadas['XY'] = list(zip(Coordenadas['X'], Coordenadas['Y']))
-    Coordenadas.drop(['X', 'Y'], axis=1, inplace=True)
-    Coordenadas = Coordenadas.to_dict('index')
-    for key in Coordenadas:
-        Coordenadas[key] = Coordenadas[key]['XY']
-
     sol_matriz = MatrizD.copy()
     for s in sol:
         sol_matriz.loc[s[0], s[1]] = sol[s]
@@ -70,8 +74,9 @@ def resolver():
     nombre_nodos = MatrizD.columns
     n = len(MatrizD.index)
 
+    maxima_distancia = max(MatrizD.max())
     Distancias = MatrizD.to_numpy()
-    np.fill_diagonal(Distancias, 10)  # llenar diagonal con un costo no-nulo
+    np.fill_diagonal(Distancias, maxima_distancia)  # llenar diagonal con un costo no-nulo
 
     x = {}
     for i in range(n):
