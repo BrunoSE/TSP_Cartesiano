@@ -9,6 +9,8 @@ global logger
 global file_format
 
 
+# Este programa toma un .csv con coordenadas en un plano euclideano y resuelve el
+# problema del vendedor viajero con esas coordenadas, luego dibuja la solucion en un grafo NetworkX
 Coordenadas = pd.read_csv('Coordenadas.csv', index_col=0)
 Coordenadas['XY'] = list(zip(Coordenadas['X'], Coordenadas['Y']))
 Coordenadas.drop(['X', 'Y'], axis=1, inplace=True)
