@@ -29,7 +29,7 @@ def mantener_log():
     global logger
     global file_format
     logger = logging.getLogger(__name__)  # P: número de proceso, L: número de línea
-    logger.setLevel(logging.DEBUG)  # deja pasar todos desde debug hasta critical
+    logger.setLevel(logging.DEBUG)  # por defecto deja pasar todos desde debug hasta critical
     print_handler = logging.StreamHandler()
     print_format = logging.Formatter('[{asctime:s}] {levelname:s} L{lineno:d}: {message:s}',
                                      '%Y-%m-%d %H:%M:%S', style='{')
@@ -66,9 +66,8 @@ def dibujar_red(sol):
 
 
 def resolver():
-    # Create the model
     model = LpProblem(name="Vendedor_viajero", sense=LpMinimize)
-    # Initialize the decision variables
+    # Inicializar variables
     if len(MatrizD.index) != len(MatrizD.columns):
         logger.debug("Error matriz de distancia no es cuadrada!")
         exit()
@@ -112,10 +111,10 @@ def resolver():
             if i != j:
                 model += (lpSum([u[i] - u[j] + (n - 1) * x[i, j]]) <= (n - 2), f'restriccion de subtour {nombre_nodos[i]} {nombre_nodos[j]}')
 
-    # Add the objective function to the model
+    # Declarar funcion objetivo
     model += lpSum([Distancias[i][j] * x[i, j] for i in range(n) for j in range(n)])
     logger.debug(model)
-    # exit()
+
     model.solve()
 
     logger.debug(f"Solver: {model.solver}")
@@ -138,7 +137,7 @@ def main():
     logger = mantener_log()
     file_handler = logging.FileHandler(f'TSP.log')
 
-    # en consola loggea desde .debug, en archivo desde .debug hasta .critical
+    # en consola printea desde .info, en archivo desde .debug hasta .critical
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(file_format)
     logger.addHandler(file_handler)
