@@ -69,7 +69,7 @@ def resolver():
     model = LpProblem(name="Vendedor_viajero", sense=LpMinimize)
     # Inicializar variables
     if len(MatrizD.index) != len(MatrizD.columns):
-        logger.debug("Error matriz de distancia no es cuadrada!")
+        logger.error("Error matriz de distancia no es cuadrada!")
         exit()
 
     nombre_nodos = MatrizD.columns
